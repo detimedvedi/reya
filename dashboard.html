@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reya Chain Points Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4f46e5;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .label {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .chart-container h3 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.3rem;
+        }
+
+        .controls {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .controls h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group label {
+            font-weight: 500;
+            color: #555;
+        }
+
+        .control-group input, .control-group select {
+            padding: 8px 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .control-group input:focus, .control-group select:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+
+        .leaderboard {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .leaderboard h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .leaderboard-table th,
+        .leaderboard-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .leaderboard-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .leaderboard-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .wallet-address {
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #6366f1;
+        }
+
+        .points {
+            font-weight: 600;
+            color: #059669;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Reya Chain Points Analytics</h1>
+            <p>Comprehensive analysis of 84,615 participants</p>
+        </div>
+
+        <div id="loading" class="loading">
+            Loading data and generating analytics...
+        </div>
+
+        <div id="dashboard" style="display: none;">
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Participants</h3>
+                    <div class="value" id="totalUsers">-</div>
+                    <div class="label">Active Users</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Points</h3>
+                    <div class="value" id="totalPoints">-</div>
+                    <div class="label">All Categories</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Average Points</h3>
+                    <div class="value" id="avgPoints">-</div>
+                    <div class="label">Per User</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Top User</h3>
+                    <div class="value" id="topUserPoints">-</div>
+                    <div class="label">Maximum Points</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Median Points</h3>
+                    <div class="value" id="medianPoints">-</div>
+                    <div class="label">50th Percentile</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Active Traders</h3>
+                    <div class="value" id="activeTraders">-</div>
+                    <div class="label">With Trading Points</div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <h3>🔍 Filters & Search</h3>
+                <div class="control-group">
+                    <label for="searchWallet">Search Wallet:</label>
+                    <input type="text" id="searchWallet" placeholder="0x..." style="width: 300px;">
+                    
+                    <label for="minPoints">Min Points:</label>
+                    <input type="number" id="minPoints" placeholder="0" style="width: 120px;">
+                    
+                    <label for="maxPoints">Max Points:</label>
+                    <input type="number" id="maxPoints" placeholder="1000000" style="width: 120px;">
+                    
+                    <label for="sortBy">Sort By:</label>
+                    <select id="sortBy">
+                        <option value="totalPoints">Total Points</option>
+                        <option value="tradingPoints">Trading Points</option>
+                        <option value="stakingPoints">Staking Points</option>
+                        <option value="signalPoints">Signal Points</option>
+                        <option value="rank">Rank</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="dashboard-grid">
+                <div class="chart-container">
+                    <h3>📊 Points Distribution</h3>
+                    <canvas id="distributionChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>🎯 Points by Category</h3>
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="chart-container">
+                    <h3>📈 Top 100 Users</h3>
+                    <canvas id="topUsersChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>🔄 Trading vs Staking</h3>
+                    <canvas id="scatterChart"></canvas>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="chart-container">
+                    <h3>📊 Points Percentiles</h3>
+                    <canvas id="percentilesChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>🎯 Activity Analysis</h3>
+                    <canvas id="activityChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Points Distribution Table -->
+            <div class="chart-container">
+                <h3>📈 Points Distribution</h3>
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Top Users</th>
+                            <th>Total Points</th>
+                            <th>Percentage of All Points</th>
+                            <th>Users Count</th>
+                        </tr>
+                    </thead>
+                    <tbody id="distributionTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Leaderboard -->
+            <div class="leaderboard">
+                <h3>🏆 Top Performers</h3>
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Wallet Address</th>
+                            <th>Trading Points</th>
+                            <th>Staking Points</th>
+                            <th>Signal Points</th>
+                            <th>Total Points</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let leaderboardData = [];
+        let filteredData = [];
+        let charts = {};
+
+        // Load and process data
+        async function loadData() {
+            try {
+                // Try to load the complete dataset first
+                const response = await fetch('./reya_complete_leaderboard.json');
+                if (!response.ok) {
+                    throw new Error('Complete dataset not found, using sample data');
+                }
+                
+                const data = await response.json();
+                leaderboardData = data.leaderboard || [];
+                
+                if (leaderboardData.length === 0) {
+                    throw new Error('No leaderboard data found');
+                }
+                
+                console.log(`Loaded ${leaderboardData.length} users`);
+                
+            } catch (error) {
+                console.warn('Could not load complete dataset:', error.message);
+                // Generate sample data for demonstration
+                leaderboardData = generateSampleData();
+                console.log('Using sample data for demonstration');
+            }
+            
+            filteredData = [...leaderboardData];
+            initializeDashboard();
+        }
+
+        // Generate sample data if real data is not available
+        function generateSampleData() {
+            const sampleData = [];
+            for (let i = 0; i < 1000; i++) {
+                const tradingPoints = Math.random() * 100000;
+                const stakingPoints = Math.random() * 50000;
+                const signalPoints = Math.random() * 10000;
+                
+                sampleData.push({
+                    rank: i + 1,
+                    walletAddress: `0x${Math.random().toString(16).substr(2, 40)}`,
+                    tradingPoints: tradingPoints,
+                    stakingPoints: stakingPoints,
+                    signalPoints: signalPoints,
+                    totalPoints: tradingPoints + stakingPoints + signalPoints
+                });
+            }
+            return sampleData.sort((a, b) => b.totalPoints - a.totalPoints);
+        }
+
+        // Initialize dashboard
+        function initializeDashboard() {
+            updateStats();
+            createCharts();
+            updateLeaderboard();
+            updateDistributionTable();
+            setupEventListeners();
+            
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+        }
+
+        // Update statistics
+        function updateStats() {
+            const totalUsers = filteredData.length;
+            const totalPoints = filteredData.reduce((sum, user) => sum + user.totalPoints, 0);
+            const avgPoints = totalPoints / totalUsers;
+            const topUser = filteredData[0];
+            
+            // Calculate median
+            const sortedPoints = filteredData.map(u => u.totalPoints).sort((a, b) => a - b);
+            const medianPoints = sortedPoints[Math.floor(sortedPoints.length / 2)];
+            
+            // Count active traders
+            const activeTraders = filteredData.filter(u => u.tradingPoints > 0).length;
+
+            document.getElementById('totalUsers').textContent = totalUsers.toLocaleString();
+            document.getElementById('totalPoints').textContent = Math.round(totalPoints).toLocaleString();
+            document.getElementById('avgPoints').textContent = Math.round(avgPoints).toLocaleString();
+            document.getElementById('topUserPoints').textContent = Math.round(topUser?.totalPoints || 0).toLocaleString();
+            document.getElementById('medianPoints').textContent = Math.round(medianPoints).toLocaleString();
+            document.getElementById('activeTraders').textContent = activeTraders.toLocaleString();
+        }
+
+        // Create charts
+        function createCharts() {
+            createDistributionChart();
+            createCategoryChart();
+            createTopUsersChart();
+            createScatterChart();
+            createPercentilesChart();
+            createActivityChart();
+        }
+
+        // Distribution chart
+        function createDistributionChart() {
+            const ctx = document.getElementById('distributionChart').getContext('2d');
+            
+            // Create histogram with specified ranges
+            const bins = [0, 10, 50, 100, 200, 500, 1000, 5000];
+            const histogram = new Array(bins.length).fill(0);
+            const labels = [];
+            
+            // Create labels
+            for (let i = 0; i < bins.length - 1; i++) {
+                labels.push(`${bins[i]}-${bins[i + 1]}`);
+            }
+            labels.push('5000+'); // Last bin for 5000+
+            
+            // Count users in each bin
+            filteredData.forEach(user => {
+                let binIndex = -1;
+                for (let i = 0; i < bins.length - 1; i++) {
+                    if (user.totalPoints >= bins[i] && user.totalPoints < bins[i + 1]) {
+                        binIndex = i;
+                        break;
+                    }
+                }
+                // Handle 5000+ case
+                if (binIndex === -1 && user.totalPoints >= 5000) {
+                    binIndex = bins.length - 1;
+                }
+                if (binIndex >= 0) {
+                    histogram[binIndex]++;
+                }
+            });
+
+            charts.distribution = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Number of Users',
+                        data: histogram,
+                        backgroundColor: 'rgba(79, 70, 229, 0.6)',
+                        borderColor: 'rgba(79, 70, 229, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Users'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Points Range'
+                            },
+                            ticks: {
+                                maxRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Category chart
+        function createCategoryChart() {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            
+            const totalTrading = filteredData.reduce((sum, user) => sum + user.tradingPoints, 0);
+            const totalStaking = filteredData.reduce((sum, user) => sum + user.stakingPoints, 0);
+            const totalSignal = filteredData.reduce((sum, user) => sum + user.signalPoints, 0);
+
+            const total = totalTrading + totalStaking + totalSignal;
+            
+            charts.category = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Trading Points', 'Staking Points', 'Signal Points'],
+                    datasets: [{
+                        data: [totalTrading, totalStaking, totalSignal],
+                        backgroundColor: [
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(34, 197, 94, 0.8)',
+                            'rgba(59, 130, 246, 0.8)'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return `${context.label}: ${percentage}%`;
+                                }
+                            }
+                        },
+                        datalabels: {
+                            display: true,
+                            formatter: (value, context) => {
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${percentage}%`;
+                            },
+                            color: 'white',
+                            font: {
+                                weight: 'bold',
+                                size: 14
+                            }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+        }
+
+        // Top users chart
+        function createTopUsersChart() {
+            const ctx = document.getElementById('topUsersChart').getContext('2d');
+            // Sort by totalPoints and take top 20, then assign correct ranks
+            const sortedTop = [...filteredData].sort((a, b) => b.totalPoints - a.totalPoints).slice(0, 20);
+            const top20 = sortedTop.map((user, index) => ({
+                ...user,
+                displayRank: index + 1
+            }));
+
+            charts.topUsers = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: top20.map(user => `#${user.displayRank}`),
+                    datasets: [{
+                        label: 'Total Points',
+                        data: top20.map(user => user.totalPoints),
+                        backgroundColor: 'rgba(168, 85, 247, 0.6)',
+                        borderColor: 'rgba(168, 85, 247, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Total Points'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'User Rank'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Scatter chart
+        function createScatterChart() {
+            const ctx = document.getElementById('scatterChart').getContext('2d');
+            const sampleData = filteredData.slice(0, 500); // Sample for performance
+
+            charts.scatter = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Users',
+                        data: sampleData.map(user => ({
+                            x: user.tradingPoints,
+                            y: user.stakingPoints
+                        })),
+                        backgroundColor: 'rgba(34, 197, 94, 0.6)',
+                        borderColor: 'rgba(34, 197, 94, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Trading Points'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Staking Points'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Percentiles chart
+        function createPercentilesChart() {
+            const ctx = document.getElementById('percentilesChart').getContext('2d');
+            
+            const sortedPoints = filteredData.map(u => u.totalPoints).sort((a, b) => a - b);
+            const percentiles = [10, 25, 50, 75, 90, 95, 99];
+            const percentileValues = percentiles.map(p => {
+                const index = Math.floor((p / 100) * sortedPoints.length);
+                return sortedPoints[Math.min(index, sortedPoints.length - 1)];
+            });
+
+            charts.percentiles = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: percentiles.map(p => `${p}th`),
+                    datasets: [{
+                        label: 'Points at Percentile',
+                        data: percentileValues,
+                        backgroundColor: 'rgba(245, 158, 11, 0.6)',
+                        borderColor: 'rgba(245, 158, 11, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Points'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Percentile'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Activity analysis chart
+        function createActivityChart() {
+            const ctx = document.getElementById('activityChart').getContext('2d');
+            
+            const tradingOnly = filteredData.filter(u => u.tradingPoints > 0 && u.stakingPoints === 0 && u.signalPoints === 0).length;
+            const stakingOnly = filteredData.filter(u => u.stakingPoints > 0 && u.tradingPoints === 0 && u.signalPoints === 0).length;
+            const multiActivity = filteredData.filter(u => 
+                (u.tradingPoints > 0 ? 1 : 0) + (u.stakingPoints > 0 ? 1 : 0) + (u.signalPoints > 0 ? 1 : 0) > 1
+            ).length;
+            const inactive = filteredData.filter(u => u.totalPoints === 0).length;
+
+            const total = tradingOnly + stakingOnly + multiActivity + inactive;
+
+            charts.activity = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Trading Only', 'Staking Only', 'Multi-Activity', 'Inactive'],
+                    datasets: [{
+                        data: [tradingOnly, stakingOnly, multiActivity, inactive],
+                        backgroundColor: [
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(34, 197, 94, 0.8)',
+                            'rgba(168, 85, 247, 0.8)',
+                            'rgba(156, 163, 175, 0.8)'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return `${context.label}: ${percentage}%`;
+                                }
+                            }
+                        },
+                        datalabels: {
+                            display: true,
+                            formatter: (value, context) => {
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${percentage}%`;
+                            },
+                            color: 'white',
+                            font: {
+                                weight: 'bold',
+                                size: 12
+                            }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+        }
+
+        // Update points distribution table
+        function updateDistributionTable() {
+            const tbody = document.getElementById('distributionTableBody');
+            tbody.innerHTML = '';
+            
+            // Sort by totalPoints to get accurate top users
+            const sortedData = [...filteredData].sort((a, b) => b.totalPoints - a.totalPoints);
+            const totalAllPoints = filteredData.reduce((sum, user) => sum + user.totalPoints, 0);
+            
+            const topGroups = [10, 50, 100, 1000];
+            
+            topGroups.forEach(topN => {
+                if (sortedData.length >= topN) {
+                    const topUsers = sortedData.slice(0, topN);
+                    const topUsersPoints = topUsers.reduce((sum, user) => sum + user.totalPoints, 0);
+                    const percentage = ((topUsersPoints / totalAllPoints) * 100).toFixed(1);
+                    
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td><strong>Top ${topN}</strong></td>
+                        <td class="points">${Math.round(topUsersPoints).toLocaleString()}</td>
+                        <td class="points">${percentage}%</td>
+                        <td>${topN.toLocaleString()}</td>
+                    `;
+                }
+            });
+        }
+
+        // Update leaderboard table
+        function updateLeaderboard() {
+            const tbody = document.getElementById('leaderboardBody');
+            tbody.innerHTML = '';
+            
+            // Sort by totalPoints and take top 50, then assign correct ranks
+            const sortedData = [...filteredData].sort((a, b) => b.totalPoints - a.totalPoints);
+            const displayData = sortedData.slice(0, 50).map((user, index) => ({
+                ...user,
+                displayRank: index + 1
+            }));
+            
+            displayData.forEach(user => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>#${user.displayRank}</td>
+                    <td class="wallet-address">${user.walletAddress}</td>
+                    <td class="points">${Math.round(user.tradingPoints).toLocaleString()}</td>
+                    <td class="points">${Math.round(user.stakingPoints).toLocaleString()}</td>
+                    <td class="points">${Math.round(user.signalPoints).toLocaleString()}</td>
+                    <td class="points">${Math.round(user.totalPoints).toLocaleString()}</td>
+                `;
+            });
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            const searchWallet = document.getElementById('searchWallet');
+            const minPoints = document.getElementById('minPoints');
+            const maxPoints = document.getElementById('maxPoints');
+            const sortBy = document.getElementById('sortBy');
+
+            [searchWallet, minPoints, maxPoints, sortBy].forEach(element => {
+                element.addEventListener('input', applyFilters);
+            });
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchWallet').value.toLowerCase();
+            const minPoints = parseFloat(document.getElementById('minPoints').value) || 0;
+            const maxPoints = parseFloat(document.getElementById('maxPoints').value) || Infinity;
+            const sortBy = document.getElementById('sortBy').value;
+
+            filteredData = leaderboardData.filter(user => {
+                const matchesSearch = !searchTerm || user.walletAddress.toLowerCase().includes(searchTerm);
+                const matchesPoints = user.totalPoints >= minPoints && user.totalPoints <= maxPoints;
+                return matchesSearch && matchesPoints;
+            });
+
+            // Sort data
+            filteredData.sort((a, b) => {
+                if (sortBy === 'rank') return a.rank - b.rank;
+                return b[sortBy] - a[sortBy];
+            });
+
+            updateStats();
+            updateCharts();
+            updateLeaderboard();
+            updateDistributionTable();
+        }
+
+        // Update all charts
+        function updateCharts() {
+            // Destroy existing charts and recreate them
+            Object.values(charts).forEach(chart => chart.destroy());
+            createCharts();
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>
