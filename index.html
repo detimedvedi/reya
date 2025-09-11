@@ -362,6 +362,10 @@
                     <h4 style="color: #f1f5f9; margin-bottom: 15px;">Wallet Information</h4>
                     <div class="wallet-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                         <div class="wallet-stat">
+                            <div style="color: #a0aec0; font-size: 0.9rem; margin-bottom: 5px;">Rank</div>
+                            <div id="walletRank" style="font-size: 1.5rem; font-weight: bold; color: #fbbf24;">-</div>
+                        </div>
+                        <div class="wallet-stat">
                             <div style="color: #a0aec0; font-size: 0.9rem; margin-bottom: 5px;">Total Points</div>
                             <div id="walletTotalPoints" style="font-size: 1.5rem; font-weight: bold; color: #60a5fa;">-</div>
                         </div>
@@ -916,7 +920,15 @@
             );
             
             if (wallet) {
+                // Calculate rank based on total points
+                // Sort all users by total points in descending order
+                const sortedUsers = [...leaderboardData].sort((a, b) => b.totalPoints - a.totalPoints);
+                const rank = sortedUsers.findIndex(user => 
+                    user.walletAddress.toLowerCase() === walletAddress.toLowerCase()
+                ) + 1;
+                
                 // Display wallet information
+                document.getElementById('walletRank').textContent = `#${rank.toLocaleString()}`;
                 document.getElementById('walletTotalPoints').textContent = Math.round(wallet.totalPoints).toLocaleString();
                 document.getElementById('walletTradingPoints').textContent = Math.round(wallet.tradingPoints).toLocaleString();
                 document.getElementById('walletStakingPoints').textContent = Math.round(wallet.stakingPoints).toLocaleString();
@@ -930,6 +942,7 @@
                 walletInfo.style.display = 'block';
                 
                 // Hide stats
+                document.getElementById('walletRank').textContent = '-';
                 document.getElementById('walletTotalPoints').textContent = '-';
                 document.getElementById('walletTradingPoints').textContent = '-';
                 document.getElementById('walletStakingPoints').textContent = '-';
