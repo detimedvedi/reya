@@ -308,27 +308,37 @@
                 </div>
             </div>
 
-            <!-- Controls -->
+            <!-- Search Wallet -->
             <div class="controls">
-                <h3>🔍 Filters & Search</h3>
+                <h3>🔍 Search Wallet</h3>
                 <div class="control-group">
-                    <label for="searchWallet">Search Wallet:</label>
-                    <input type="text" id="searchWallet" placeholder="0x..." style="width: 300px;">
-                    
-                    <label for="minPoints">Min Points:</label>
-                    <input type="number" id="minPoints" placeholder="0" style="width: 120px;">
-                    
-                    <label for="maxPoints">Max Points:</label>
-                    <input type="number" id="maxPoints" placeholder="1000000" style="width: 120px;">
-                    
-                    <label for="sortBy">Sort By:</label>
-                    <select id="sortBy">
-                        <option value="totalPoints">Total Points</option>
-                        <option value="tradingPoints">Trading Points</option>
-                        <option value="stakingPoints">Staking Points</option>
-                        <option value="signalPoints">Signal Points</option>
-                        <option value="rank">Rank</option>
-                    </select>
+                    <label for="walletInput">Paste Wallet:</label>
+                    <input type="text" id="walletInput" placeholder="0x..." style="width: 400px;">
+                    <button id="searchButton" style="padding: 8px 16px; margin-left: 10px; background: #60a5fa; color: white; border: none; border-radius: 8px; cursor: pointer;">Search</button>
+                </div>
+                
+                <!-- Wallet Info Display -->
+                <div id="walletInfo" style="display: none; margin-top: 20px; padding: 20px; background: #1a202c; border-radius: 10px; border: 1px solid #4a5568;">
+                    <h4 style="color: #f1f5f9; margin-bottom: 15px;">Wallet Information</h4>
+                    <div class="wallet-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div class="wallet-stat">
+                            <div style="color: #a0aec0; font-size: 0.9rem; margin-bottom: 5px;">Total Points</div>
+                            <div id="walletTotalPoints" style="font-size: 1.5rem; font-weight: bold; color: #60a5fa;">-</div>
+                        </div>
+                        <div class="wallet-stat">
+                            <div style="color: #a0aec0; font-size: 0.9rem; margin-bottom: 5px;">Trading Points</div>
+                            <div id="walletTradingPoints" style="font-size: 1.5rem; font-weight: bold; color: #ef4444;">-</div>
+                        </div>
+                        <div class="wallet-stat">
+                            <div style="color: #a0aec0; font-size: 0.9rem; margin-bottom: 5px;">Staking Points</div>
+                            <div id="walletStakingPoints" style="font-size: 1.5rem; font-weight: bold; color: #22c55e;">-</div>
+                        </div>
+                        <div class="wallet-stat">
+                            <div style="color: #a0aec0; font-size: 0.9rem; margin-bottom: 5px;">Signal Points</div>
+                            <div id="walletSignalPoints" style="font-size: 1.5rem; font-weight: bold; color: #3b82f6;">-</div>
+                        </div>
+                    </div>
+                    <div id="walletNotFound" style="display: none; color: #f87171; margin-top: 10px; font-weight: 500;">Wallet not found in the leaderboard</div>
                 </div>
             </div>
 
@@ -805,39 +815,54 @@
 
         // Setup event listeners
         function setupEventListeners() {
-            const searchWallet = document.getElementById('searchWallet');
-            const minPoints = document.getElementById('minPoints');
-            const maxPoints = document.getElementById('maxPoints');
-            const sortBy = document.getElementById('sortBy');
+            const walletInput = document.getElementById('walletInput');
+            const searchButton = document.getElementById('searchButton');
 
-            [searchWallet, minPoints, maxPoints, sortBy].forEach(element => {
-                element.addEventListener('input', applyFilters);
+            // Add event listeners for wallet search
+            searchButton.addEventListener('click', searchWallet);
+            walletInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchWallet();
+                }
             });
         }
 
-        // Apply filters
-        function applyFilters() {
-            const searchTerm = document.getElementById('searchWallet').value.toLowerCase();
-            const minPoints = parseFloat(document.getElementById('minPoints').value) || 0;
-            const maxPoints = parseFloat(document.getElementById('maxPoints').value) || Infinity;
-            const sortBy = document.getElementById('sortBy').value;
-
-            filteredData = leaderboardData.filter(user => {
-                const matchesSearch = !searchTerm || user.walletAddress.toLowerCase().includes(searchTerm);
-                const matchesPoints = user.totalPoints >= minPoints && user.totalPoints <= maxPoints;
-                return matchesSearch && matchesPoints;
-            });
-
-            // Sort data
-            filteredData.sort((a, b) => {
-                if (sortBy === 'rank') return a.rank - b.rank;
-                return b[sortBy] - a[sortBy];
-            });
-
-            updateStats();
-            updateCharts();
-            updateLeaderboard();
-            updateDistributionTable();
+        // Search for specific wallet
+        function searchWallet() {
+            const walletAddress = document.getElementById('walletInput').value.trim();
+            const walletInfo = document.getElementById('walletInfo');
+            const walletNotFound = document.getElementById('walletNotFound');
+            
+            if (!walletAddress) {
+                walletInfo.style.display = 'none';
+                return;
+            }
+            
+            // Find wallet in leaderboard data
+            const wallet = leaderboardData.find(user => 
+                user.walletAddress.toLowerCase() === walletAddress.toLowerCase()
+            );
+            
+            if (wallet) {
+                // Display wallet information
+                document.getElementById('walletTotalPoints').textContent = Math.round(wallet.totalPoints).toLocaleString();
+                document.getElementById('walletTradingPoints').textContent = Math.round(wallet.tradingPoints).toLocaleString();
+                document.getElementById('walletStakingPoints').textContent = Math.round(wallet.stakingPoints).toLocaleString();
+                document.getElementById('walletSignalPoints').textContent = Math.round(wallet.signalPoints).toLocaleString();
+                
+                walletNotFound.style.display = 'none';
+                walletInfo.style.display = 'block';
+            } else {
+                // Wallet not found
+                walletNotFound.style.display = 'block';
+                walletInfo.style.display = 'block';
+                
+                // Hide stats
+                document.getElementById('walletTotalPoints').textContent = '-';
+                document.getElementById('walletTradingPoints').textContent = '-';
+                document.getElementById('walletStakingPoints').textContent = '-';
+                document.getElementById('walletSignalPoints').textContent = '-';
+            }
         }
 
         // Update all charts
