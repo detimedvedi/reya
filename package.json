@@ -4,9 +4,7 @@
   "description": "Reya Chain Points Analytics Dashboard",
   "main": "index.html",
   "scripts": {
-    "dev": "python -m http.server 3000",
-    "build": "echo 'Static site - no build needed'",
-    "update-data": "python fetch_complete_leaderboard.py"
+    "build": "echo 'Static site - no build needed'"
   },
   "keywords": [
     "reya",
@@ -18,7 +16,5 @@
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {},
-  "devDependencies": {
-    "python": "^3.8.0"
-  }
+  "devDependencies": {}
 }
