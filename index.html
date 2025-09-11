@@ -16,9 +16,9 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             min-height: 100vh;
-            color: #333;
+            color: #e2e8f0;
         }
 
         .container {
@@ -29,7 +29,7 @@
 
         .header {
             text-align: center;
-            color: white;
+            color: #f1f5f9;
             margin-bottom: 30px;
         }
 
@@ -52,12 +52,13 @@
         }
 
         .stat-card {
-            background: white;
+            background: #2d3748;
             padding: 25px;
             border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
             text-align: center;
             transition: transform 0.3s ease;
+            border: 1px solid #4a5568;
         }
 
         .stat-card:hover {
@@ -65,7 +66,7 @@
         }
 
         .stat-card h3 {
-            color: #666;
+            color: #a0aec0;
             font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -75,12 +76,12 @@
         .stat-card .value {
             font-size: 2rem;
             font-weight: bold;
-            color: #4f46e5;
+            color: #60a5fa;
             margin-bottom: 5px;
         }
 
         .stat-card .label {
-            color: #888;
+            color: #cbd5e0;
             font-size: 0.9rem;
         }
 
@@ -92,29 +93,31 @@
         }
 
         .chart-container {
-            background: white;
+            background: #2d3748;
             padding: 25px;
             border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            border: 1px solid #4a5568;
         }
 
         .chart-container h3 {
             margin-bottom: 20px;
-            color: #333;
+            color: #f1f5f9;
             font-size: 1.3rem;
         }
 
         .controls {
-            background: white;
+            background: #2d3748;
             padding: 25px;
             border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
             margin-bottom: 30px;
+            border: 1px solid #4a5568;
         }
 
         .controls h3 {
             margin-bottom: 20px;
-            color: #333;
+            color: #f1f5f9;
         }
 
         .control-group {
@@ -126,32 +129,35 @@
 
         .control-group label {
             font-weight: 500;
-            color: #555;
+            color: #e2e8f0;
         }
 
         .control-group input, .control-group select {
             padding: 8px 12px;
-            border: 2px solid #e5e7eb;
+            border: 2px solid #4a5568;
             border-radius: 8px;
             font-size: 14px;
             transition: border-color 0.3s ease;
+            background: #1a202c;
+            color: #e2e8f0;
         }
 
         .control-group input:focus, .control-group select:focus {
             outline: none;
-            border-color: #4f46e5;
+            border-color: #60a5fa;
         }
 
         .leaderboard {
-            background: white;
+            background: #2d3748;
             padding: 25px;
             border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            border: 1px solid #4a5568;
         }
 
         .leaderboard h3 {
             margin-bottom: 20px;
-            color: #333;
+            color: #f1f5f9;
         }
 
         .leaderboard-table {
@@ -163,43 +169,70 @@
         .leaderboard-table td {
             padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid #4a5568;
+            color: #e2e8f0;
         }
 
         .leaderboard-table th {
-            background: #f8fafc;
+            background: #1a202c;
             font-weight: 600;
-            color: #374151;
+            color: #f1f5f9;
         }
 
         .leaderboard-table tr:hover {
-            background: #f8fafc;
+            background: #4a5568;
         }
 
         .wallet-address {
             font-family: monospace;
             font-size: 0.9rem;
-            color: #6366f1;
+            color: #60a5fa;
         }
 
         .points {
             font-weight: 600;
-            color: #059669;
+            color: #68d391;
         }
 
         .loading {
             text-align: center;
             padding: 40px;
-            color: white;
+            color: #f1f5f9;
             font-size: 1.2rem;
         }
 
         .error {
-            background: #fee2e2;
-            color: #dc2626;
+            background: #2d1b1b;
+            color: #f87171;
             padding: 15px;
             border-radius: 8px;
             margin: 20px 0;
+            border: 1px solid #7f1d1d;
+        }
+
+        .made-by {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(45, 55, 72, 0.9);
+            padding: 8px 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            font-size: 0.9rem;
+            color: #e2e8f0;
+            backdrop-filter: blur(10px);
+            border: 1px solid #4a5568;
+        }
+
+        .made-by a {
+            color: #60a5fa;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .made-by a:hover {
+            text-decoration: underline;
         }
 
         @media (max-width: 768px) {
@@ -215,10 +248,21 @@
             .header h1 {
                 font-size: 2rem;
             }
+            
+            .made-by {
+                position: relative;
+                top: 0;
+                left: 0;
+                margin-bottom: 20px;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="made-by">
+        made by <a href="https://x.com/molygang134957" target="_blank">@molygang134957</a>
+    </div>
     <div class="container">
         <div class="header">
             <h1>🚀 Reya Chain Points Analytics</h1>
@@ -497,16 +541,28 @@
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Number of Users'
+                                text: 'Number of Users',
+                                color: '#e2e8f0'
+                            },
+                            ticks: {
+                                color: '#cbd5e0'
+                            },
+                            grid: {
+                                color: '#4a5568'
                             }
                         },
                         x: {
                             title: {
                                 display: true,
-                                text: 'Points Range'
+                                text: 'Points Range',
+                                color: '#e2e8f0'
                             },
                             ticks: {
-                                maxRotation: 45
+                                maxRotation: 45,
+                                color: '#cbd5e0'
+                            },
+                            grid: {
+                                color: '#4a5568'
                             }
                         }
                     }
@@ -535,15 +591,17 @@
                             'rgba(34, 197, 94, 0.8)',
                             'rgba(59, 130, 246, 0.8)'
                         ],
-                        borderWidth: 2,
-                        borderColor: '#fff'
+                        borderWidth: 0
                     }]
                 },
                 options: {
                     responsive: true,
                     plugins: {
                         legend: {
-                            position: 'bottom'
+                            position: 'bottom',
+                            labels: {
+                                color: '#e2e8f0'
+                            }
                         },
                         tooltip: {
                             callbacks: {
@@ -600,13 +658,27 @@
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Total Points'
+                                text: 'Total Points',
+                                color: '#e2e8f0'
+                            },
+                            ticks: {
+                                color: '#cbd5e0'
+                            },
+                            grid: {
+                                color: '#4a5568'
                             }
                         },
                         x: {
                             title: {
                                 display: true,
-                                text: 'User Rank'
+                                text: 'User Rank',
+                                color: '#e2e8f0'
+                            },
+                            ticks: {
+                                color: '#cbd5e0'
+                            },
+                            grid: {
+                                color: '#4a5568'
                             }
                         }
                     }
@@ -640,15 +712,17 @@
                             'rgba(168, 85, 247, 0.8)',
                             'rgba(156, 163, 175, 0.8)'
                         ],
-                        borderWidth: 2,
-                        borderColor: '#fff'
+                        borderWidth: 0
                     }]
                 },
                 options: {
                     responsive: true,
                     plugins: {
                         legend: {
-                            position: 'bottom'
+                            position: 'bottom',
+                            labels: {
+                                color: '#e2e8f0'
+                            }
                         },
                         tooltip: {
                             callbacks: {
