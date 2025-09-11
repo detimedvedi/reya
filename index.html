@@ -225,6 +225,27 @@
             border: 1px solid #4a5568;
         }
 
+        .last-updated {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(45, 55, 72, 0.9);
+            padding: 8px 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            font-size: 0.9rem;
+            color: #e2e8f0;
+            backdrop-filter: blur(10px);
+            border: 1px solid #4a5568;
+            text-align: right;
+        }
+
+        .last-updated .update-time {
+            color: #60a5fa;
+            font-weight: 500;
+        }
+
         .made-by a {
             color: #60a5fa;
             text-decoration: none;
@@ -256,12 +277,24 @@
                 margin-bottom: 20px;
                 text-align: center;
             }
+            
+            .last-updated {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin-bottom: 20px;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
     <div class="made-by">
         made by <a href="https://x.com/molygang134957" target="_blank">@molygang134957</a>
+    </div>
+    <div class="last-updated">
+        <div>Last Updated:</div>
+        <div class="update-time" id="lastUpdated">Loading...</div>
     </div>
     <div class="container">
         <div class="header">
@@ -464,6 +497,7 @@
             updateLeaderboard();
             updateDistributionTable();
             setupEventListeners();
+            updateLastUpdatedTime();
             
             document.getElementById('loading').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
@@ -872,8 +906,33 @@
             createCharts();
         }
 
+        // Update last updated timestamp
+        function updateLastUpdatedTime() {
+            const now = new Date();
+            const options = {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZoneName: 'short'
+            };
+            const formattedTime = now.toLocaleString('ru-RU', options);
+            document.getElementById('lastUpdated').textContent = formattedTime;
+        }
+
+        // Update timestamp every 30 seconds
+        function startTimestampUpdater() {
+            updateLastUpdatedTime();
+            setInterval(updateLastUpdatedTime, 30000); // Update every 30 seconds
+        }
+
         // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', loadData);
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            startTimestampUpdater();
+        });
     </script>
 </body>
 </html>
