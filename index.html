@@ -446,31 +446,25 @@
         let filteredData = [];
         let charts = {};
 
-        // Update last modified timestamp
-        async function updateLastModified() {
+        // Update last modified timestamp using JSON timestamp
+        function updateLastModified(jsonData) {
             try {
-                const response = await fetch('./reya_complete_leaderboard.json', { method: 'HEAD' });
-                if (response.ok) {
-                    const lastModified = response.headers.get('Last-Modified');
-                    if (lastModified) {
-                        const date = new Date(lastModified);
-                        const options = {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            timeZoneName: 'short'
-                        };
-                        document.getElementById('lastUpdated').textContent = date.toLocaleDateString('en-US', options);
-                    } else {
-                        document.getElementById('lastUpdated').textContent = 'Unknown';
-                    }
+                if (jsonData && jsonData.timestamp) {
+                    const date = new Date(jsonData.timestamp);
+                    const options = {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        timeZoneName: 'short'
+                    };
+                    document.getElementById('lastUpdated').textContent = date.toLocaleDateString('en-US', options);
                 } else {
                     document.getElementById('lastUpdated').textContent = 'Unknown';
                 }
             } catch (error) {
-                console.warn('Could not fetch last modified date:', error);
+                console.warn('Could not parse timestamp:', error);
                 document.getElementById('lastUpdated').textContent = 'Unknown';
             }
         }
@@ -478,9 +472,6 @@
         // Load and process data
         async function loadData() {
             try {
-                // Update last modified timestamp
-                await updateLastModified();
-                
                 // Try to load the complete dataset first
                 const response = await fetch('./reya_complete_leaderboard.json');
                 if (!response.ok) {
@@ -489,6 +480,9 @@
                 
                 const data = await response.json();
                 leaderboardData = data.leaderboard || [];
+                
+                // Update last modified timestamp using JSON data
+                updateLastModified(data);
                 
                 if (leaderboardData.length === 0) {
                     throw new Error('No leaderboard data found');
@@ -500,6 +494,7 @@
                 console.warn('Could not load complete dataset:', error.message);
                 // Generate sample data for demonstration
                 leaderboardData = generateSampleData();
+                document.getElementById('lastUpdated').textContent = 'Sample Data';
                 console.log('Using sample data for demonstration');
             }
             
