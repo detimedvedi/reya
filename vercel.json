@@ -1,6 +1,8 @@
 {
   "version": 2,
   "outputDirectory": ".",
+  "buildCommand": "echo 'Static site - no build needed'",
+  "installCommand": "echo 'No dependencies to install'",
   "headers": [
     {
       "source": "/(.*)",
@@ -16,9 +18,19 @@
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "public, max-age=60"
+          "value": "public, max-age=300"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
         }
       ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/index.html"
     }
   ]
 }
