@@ -404,7 +404,7 @@
             </div>
 
             <!-- Points Distribution Table -->
-            <div class="chart-container">
+            <div class="chart-container" style="margin-bottom: 30px;">
                 <h3>📈 Points Distribution</h3>
                 <table class="leaderboard-table">
                     <thead>
@@ -412,7 +412,6 @@
                             <th>Top Users</th>
                             <th>Total Points</th>
                             <th>Percentage of All Points</th>
-                            <th>Users Count</th>
                         </tr>
                     </thead>
                     <tbody id="distributionTableBody">
@@ -777,7 +776,7 @@
             const sortedData = [...filteredData].sort((a, b) => b.totalPoints - a.totalPoints);
             const totalAllPoints = filteredData.reduce((sum, user) => sum + user.totalPoints, 0);
             
-            const topGroups = [10, 50, 100, 1000];
+            const topGroups = [10, 50, 100, 500, 1000];
             
             topGroups.forEach(topN => {
                 if (sortedData.length >= topN) {
@@ -790,7 +789,6 @@
                         <td><strong>Top ${topN}</strong></td>
                         <td class="points">${Math.round(topUsersPoints).toLocaleString()}</td>
                         <td class="points">${percentage}%</td>
-                        <td>${topN.toLocaleString()}</td>
                     `;
                 }
             });
