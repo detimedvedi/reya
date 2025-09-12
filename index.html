@@ -8,6 +8,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <style>
+        #searchButton:hover {
+            background: linear-gradient(135deg, #7c3aed 0%, #0891b2 100%);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+            transform: translateY(-2px);
+        }
         * {
             margin: 0;
             padding: 0;
@@ -16,7 +21,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 75%, #0f172a 100%);
             min-height: 100vh;
             color: #e2e8f0;
         }
@@ -38,6 +43,13 @@
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
+        
+        .header h1 .gradient-text {
+            background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
         .header p {
             font-size: 1.1rem;
@@ -52,17 +64,19 @@
         }
 
         .stat-card {
-            background: #2d3748;
+            background: linear-gradient(145deg, #1e293b 0%, #334155 100%);
             padding: 25px;
             border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4), 0 0 20px rgba(139, 92, 246, 0.1);
             text-align: center;
-            transition: transform 0.3s ease;
-            border: 1px solid #4a5568;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(139, 92, 246, 0.2);
         }
 
         .stat-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.5), 0 0 30px rgba(139, 92, 246, 0.2);
+            border-color: rgba(139, 92, 246, 0.4);
         }
 
         .stat-card h3 {
@@ -76,7 +90,10 @@
         .stat-card .value {
             font-size: 2rem;
             font-weight: bold;
-            color: #60a5fa;
+            background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin-bottom: 5px;
         }
 
@@ -93,11 +110,11 @@
         }
 
         .chart-container {
-            background: #2d3748;
+            background: linear-gradient(145deg, #1e293b 0%, #334155 100%);
             padding: 25px;
             border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-            border: 1px solid #4a5568;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4), 0 0 20px rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
         }
 
         .chart-container h3 {
@@ -107,12 +124,12 @@
         }
 
         .controls {
-            background: #2d3748;
+            background: linear-gradient(145deg, #1e293b 0%, #334155 100%);
             padding: 25px;
             border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4), 0 0 20px rgba(139, 92, 246, 0.1);
             margin-bottom: 30px;
-            border: 1px solid #4a5568;
+            border: 1px solid rgba(139, 92, 246, 0.2);
         }
 
         .controls h3 {
@@ -144,15 +161,16 @@
 
         .control-group input:focus, .control-group select:focus {
             outline: none;
-            border-color: #60a5fa;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
         }
 
         .leaderboard {
-            background: #2d3748;
+            background: linear-gradient(145deg, #1e293b 0%, #334155 100%);
             padding: 25px;
             border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-            border: 1px solid #4a5568;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4), 0 0 20px rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
         }
 
         .leaderboard h3 {
@@ -174,24 +192,27 @@
         }
 
         .leaderboard-table th {
-            background: #1a202c;
+            background: #1e293b;
             font-weight: 600;
             color: #f1f5f9;
         }
 
         .leaderboard-table tr:hover {
-            background: #4a5568;
+            background: rgba(139, 92, 246, 0.1);
         }
 
         .wallet-address {
             font-family: monospace;
             font-size: 0.9rem;
-            color: #60a5fa;
+            color: #06b6d4;
         }
 
         .points {
             font-weight: 600;
-            color: #68d391;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .loading {
@@ -215,18 +236,21 @@
             top: 20px;
             left: 20px;
             z-index: 1000;
-            background: rgba(45, 55, 72, 0.9);
+            background: rgba(30, 41, 59, 0.9);
             padding: 8px 12px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4), 0 0 15px rgba(139, 92, 246, 0.1);
             font-size: 0.9rem;
             color: #e2e8f0;
-            backdrop-filter: blur(10px);
-            border: 1px solid #4a5568;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(139, 92, 246, 0.3);
         }
 
         .made-by a {
-            color: #60a5fa;
+            background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             text-decoration: none;
             font-weight: 500;
         }
@@ -239,14 +263,15 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            background: rgba(45, 55, 72, 0.9);
+            background: rgba(30, 41, 59, 0.9);
             padding: 10px 15px;
             border-radius: 8px;
-            border: 1px solid #4a5568;
+            border: 1px solid rgba(139, 92, 246, 0.3);
             color: #cbd5e0;
             font-size: 0.85rem;
             z-index: 1000;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4), 0 0 15px rgba(139, 92, 246, 0.1);
         }
 
         .last-updated .label {
@@ -258,7 +283,10 @@
         }
 
         .last-updated .time {
-            color: #60a5fa;
+            background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-weight: 500;
         }
 
@@ -305,7 +333,7 @@
     </div>
     <div class="container">
         <div class="header">
-            <h1>🚀 Reya Chain Points Analytics</h1>
+            <h1>🚀 <span class="gradient-text">Reya Chain Points Analytics</span></h1>
             <p>Comprehensive analysis of 84,615 participants</p>
         </div>
 
@@ -354,32 +382,32 @@
                 <div class="control-group">
                     <label for="walletInput">Paste Wallet:</label>
                     <input type="text" id="walletInput" placeholder="0x..." style="width: 400px;">
-                    <button id="searchButton" style="padding: 8px 16px; margin-left: 10px; background: #60a5fa; color: white; border: none; border-radius: 8px; cursor: pointer;">Search</button>
+                    <button id="searchButton" style="padding: 8px 16px; margin-left: 10px; background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%); color: white; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);">Search</button>
                 </div>
                 
                 <!-- Wallet Info Display -->
-                <div id="walletInfo" style="display: none; margin-top: 20px; padding: 20px; background: #1a202c; border-radius: 10px; border: 1px solid #4a5568;">
+                <div id="walletInfo" style="display: none; margin-top: 20px; padding: 20px; background: linear-gradient(145deg, #1e293b 0%, #334155 100%); border-radius: 10px; border: 1px solid rgba(139, 92, 246, 0.3); box-shadow: 0 4px 15px rgba(0,0,0,0.3), 0 0 15px rgba(139, 92, 246, 0.1);">
                     <h4 style="color: #f1f5f9; margin-bottom: 15px;">Wallet Information</h4>
                     <div class="wallet-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                         <div class="wallet-stat">
                             <div style="color: #a0aec0; font-size: 0.9rem; margin-bottom: 5px;">Rank</div>
-                            <div id="walletRank" style="font-size: 1.5rem; font-weight: bold; color: #fbbf24;">-</div>
+                            <div id="walletRank" style="font-size: 1.5rem; font-weight: bold; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">-</div>
                         </div>
                         <div class="wallet-stat">
                             <div style="color: #a0aec0; font-size: 0.9rem; margin-bottom: 5px;">Total Points</div>
-                            <div id="walletTotalPoints" style="font-size: 1.5rem; font-weight: bold; color: #60a5fa;">-</div>
+                            <div id="walletTotalPoints" style="font-size: 1.5rem; font-weight: bold; background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">-</div>
                         </div>
                         <div class="wallet-stat">
                             <div style="color: #a0aec0; font-size: 0.9rem; margin-bottom: 5px;">Trading Points</div>
-                            <div id="walletTradingPoints" style="font-size: 1.5rem; font-weight: bold; color: #ef4444;">-</div>
+                            <div id="walletTradingPoints" style="font-size: 1.5rem; font-weight: bold; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">-</div>
                         </div>
                         <div class="wallet-stat">
                             <div style="color: #a0aec0; font-size: 0.9rem; margin-bottom: 5px;">Staking Points</div>
-                            <div id="walletStakingPoints" style="font-size: 1.5rem; font-weight: bold; color: #22c55e;">-</div>
+                            <div id="walletStakingPoints" style="font-size: 1.5rem; font-weight: bold; background: linear-gradient(135deg, #10b981 0%, #059669 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">-</div>
                         </div>
                         <div class="wallet-stat">
                             <div style="color: #a0aec0; font-size: 0.9rem; margin-bottom: 5px;">Signal Points</div>
-                            <div id="walletSignalPoints" style="font-size: 1.5rem; font-weight: bold; color: #3b82f6;">-</div>
+                            <div id="walletSignalPoints" style="font-size: 1.5rem; font-weight: bold; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">-</div>
                         </div>
                     </div>
                     <div id="walletNotFound" style="display: none; color: #f87171; margin-top: 10px; font-weight: 500;">Wallet not found in the leaderboard</div>
@@ -602,8 +630,8 @@
                     datasets: [{
                         label: 'Number of Users',
                         data: histogram,
-                        backgroundColor: 'rgba(79, 70, 229, 0.6)',
-                        borderColor: 'rgba(79, 70, 229, 1)',
+                        backgroundColor: 'rgba(139, 92, 246, 0.6)',
+                        borderColor: 'rgba(139, 92, 246, 1)',
                         borderWidth: 1
                     }]
                 },
@@ -661,7 +689,7 @@
                         data: [totalTrading, totalStaking, totalSignal],
                         backgroundColor: [
                             'rgba(239, 68, 68, 0.8)',
-                            'rgba(34, 197, 94, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
                             'rgba(59, 130, 246, 0.8)'
                         ],
                         borderWidth: 0
@@ -725,9 +753,9 @@
                         data: [tradingOnly, stakingOnly, multiActivity, inactive],
                         backgroundColor: [
                             'rgba(239, 68, 68, 0.8)',
-                            'rgba(34, 197, 94, 0.8)',
-                            'rgba(168, 85, 247, 0.8)',
-                            'rgba(156, 163, 175, 0.8)'
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(139, 92, 246, 0.8)',
+                            'rgba(107, 114, 128, 0.8)'
                         ],
                         borderWidth: 0
                     }]
