@@ -387,15 +387,9 @@
             </div>
 
             <!-- Charts -->
-            <div class="dashboard-grid">
-                <div class="chart-container">
-                    <h3>📊 Points Distribution</h3>
-                    <canvas id="distributionChart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <h3>📈 Top 100 Users</h3>
-                    <canvas id="topUsersChart"></canvas>
-                </div>
+            <div class="chart-container" style="margin-bottom: 30px;">
+                <h3>📊 Points Distribution</h3>
+                <canvas id="distributionChart"></canvas>
             </div>
 
             <div class="dashboard-grid">
@@ -571,7 +565,6 @@
         function createCharts() {
             createDistributionChart();
             createCategoryChart();
-            createTopUsersChart();
             createActivityChart();
         }
 
@@ -580,7 +573,7 @@
             const ctx = document.getElementById('distributionChart').getContext('2d');
             
             // Create histogram with specified ranges
-            const bins = [0, 10, 50, 100, 200, 500, 1000, 5000];
+            const bins = [0, 1, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000];
             const histogram = new Array(bins.length).fill(0);
             const labels = [];
             
@@ -715,62 +708,6 @@
             });
         }
 
-        // Top users chart
-        function createTopUsersChart() {
-            const ctx = document.getElementById('topUsersChart').getContext('2d');
-            // Sort by totalPoints and take top 20, then assign correct ranks
-            const sortedTop = [...filteredData].sort((a, b) => b.totalPoints - a.totalPoints).slice(0, 20);
-            const top20 = sortedTop.map((user, index) => ({
-                ...user,
-                displayRank: index + 1
-            }));
-
-            charts.topUsers = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: top20.map(user => `#${user.displayRank}`),
-                    datasets: [{
-                        label: 'Total Points',
-                        data: top20.map(user => user.totalPoints),
-                        backgroundColor: 'rgba(168, 85, 247, 0.6)',
-                        borderColor: 'rgba(168, 85, 247, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Total Points',
-                                color: '#e2e8f0'
-                            },
-                            ticks: {
-                                color: '#cbd5e0'
-                            },
-                            grid: {
-                                color: '#4a5568'
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'User Rank',
-                                color: '#e2e8f0'
-                            },
-                            ticks: {
-                                color: '#cbd5e0'
-                            },
-                            grid: {
-                                color: '#4a5568'
-                            }
-                        }
-                    }
-                }
-            });
-        }
 
 
         // Activity analysis chart
