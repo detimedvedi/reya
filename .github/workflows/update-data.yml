@@ -29,7 +29,7 @@ jobs:
         
     - name: Fetch latest leaderboard data
       run: |
-        python fetch_complete_leaderboard.py
+        python fetch_complete_leaderboard_v2.py
         
     - name: Check if data changed
       id: check_changes

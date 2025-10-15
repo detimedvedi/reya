@@ -334,7 +334,7 @@
     <div class="container">
         <div class="header">
             <h1>🚀 <span class="gradient-text">Reya Chain Points Analytics</span></h1>
-            <p>Comprehensive analysis of 84,615 participants</p>
+            <p id="participantsCount">Loading...</p>
         </div>
 
         <div id="loading" class="loading">
@@ -552,6 +552,8 @@
         // Initialize dashboard
         function initializeDashboard() {
             updateStats();
+            // Update participants count in header
+            document.getElementById('participantsCount').textContent = `Comprehensive analysis of ${leaderboardData.length.toLocaleString()} participants`;
             createCharts();
             updateLeaderboard();
             updateDistributionTable();
@@ -597,13 +599,13 @@
             // Create histogram with specified ranges
             const bins = [0, 1, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000];
             const histogram = new Array(bins.length).fill(0);
-            const labels = [];
+            const allLabels = [];
             
             // Create labels
             for (let i = 0; i < bins.length - 1; i++) {
-                labels.push(`${bins[i]}-${bins[i + 1]}`);
+                allLabels.push(`${bins[i]}-${bins[i + 1]}`);
             }
-            labels.push('5000+'); // Last bin for 5000+
+            allLabels.push('5000+'); // Last bin for 5000+
             
             // Count users in each bin
             filteredData.forEach(user => {
@@ -622,6 +624,16 @@
                     histogram[binIndex]++;
                 }
             });
+            
+            // Filter out empty bins
+            const labels = [];
+            const data = [];
+            for (let i = 0; i < histogram.length; i++) {
+                if (histogram[i] > 0) {
+                    labels.push(allLabels[i]);
+                    data.push(histogram[i]);
+                }
+            }
 
             charts.distribution = new Chart(ctx, {
                 type: 'bar',
@@ -629,7 +641,7 @@
                     labels: labels,
                     datasets: [{
                         label: 'Number of Users',
-                        data: histogram,
+                        data: data,
                         backgroundColor: 'rgba(139, 92, 246, 0.6)',
                         borderColor: 'rgba(139, 92, 246, 1)',
                         borderWidth: 1
